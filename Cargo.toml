@@ -1,6 +1,6 @@
 [package]
 name = "cnctd_smart_home"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Connected Dot Inc.", "Kyle Ebner <kyle@cnctd.world>"]
 description = "A collection of Smart Home APIs"
