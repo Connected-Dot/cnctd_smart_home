@@ -1,36 +1,43 @@
-struct TPLink;
+use std::{fmt, thread::sleep, time::Duration};
+
+use tplinker::{
+    discovery::discover,
+    devices::{Device, RawDevice, HS100, HS105, KL110, LB110, LB120},
+    capabilities::{DeviceActions, Switch},	
+};
+
+use crate::{DeviceType, Model, SmartDevice, SupportedFeature};
+
+pub struct TPLink;
 
 impl TPLink {
-    pub fn get_devices() -> Vec<SmartDevice> {
+    pub async fn get_devices() -> Vec<SmartDevice> {
+		let mut smart_devices: Vec<SmartDevice> = vec![];
         for (addr, data) in discover().unwrap() {
-			let mut connected_devices: Vec<SmartDevice> = vec![];
 			let sysinfo = data.sysinfo();
-			println!("{}\t{}\t{}\t{}", addr, sysinfo.alias, sysinfo.hw_type, sysinfo.model);
-			match &*sysinfo.model {
-				"KL130(US)" | "KL110(US)" => {
-					let device = KL110::from_addr(addr);
-					println!("Device name: {}", device.sysinfo().unwrap().alias);
+			let mut features: Vec<SupportedFeature> = vec![];
+			features.push(SupportedFeature::OnOff);
+			
+			if sysinfo.is_dimmable() { features.push(SupportedFeature::Brightness) }
+			if sysinfo.is_color() { features.push(SupportedFeature::Color) }
+			if sysinfo.is_variable_color_temp() { features.push(SupportedFeature::ColorTemp) }
+
+			// println!("{}\t{}\t{}\t{}\n{:?}", addr, sysinfo.alias, sysinfo.hw_type, sysinfo.model, data.smartlife.);
+			println!("{:?}", sysinfo);
+			match DeviceType::get_type_from_str(&sysinfo.model) {
+				Ok(device_type) => {
+					let smart_device = SmartDevice::new(&sysinfo.alias, Some(addr), features, device_type);
+					if !smart_devices.iter().any(|d| d.addr == Some(addr)) {
+						smart_devices.push(smart_device);
+					}
 				}
-				"HS100(US)" => {
-					let device = HS100::from_addr(addr);
-					println!("Device name: {}", device.sysinfo().unwrap().alias);
-				}
-				"HS105(US)" => {
-					let device = HS105::from_addr(addr);
-					println!("Device name: {}", device.sysinfo().unwrap().alias);
-				}
-				"LB120(US)" => {
-					let device = LB120::from_addr(addr);
-					println!("Device name: {}", device.sysinfo().unwrap().alias);
-				}
-				"LB100(US)" | "LB110(US)" | "LB200(E26)"=> {
-					let device = LB110::from_addr(addr);
-					println!("Device name: {}", device.sysinfo().unwrap().alias);
-				}
-				&_ => {
-					println!("device not yet supported");
-				}
+				Err(e) => println!("Error {}", e),
 			}
+			
+
 	  	}
+		println!("tplink length: {}", smart_devices.len());
+		smart_devices
     }
+
 }
