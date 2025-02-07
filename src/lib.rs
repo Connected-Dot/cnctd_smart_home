@@ -14,7 +14,7 @@ pub struct SmartDevice {
     pub addr: Option<SocketAddr>,
     pub supported_features: Vec<SupportedFeature>,
     pub device_type: DeviceType,
-    // pub status: DeviceStatus,
+    pub status: DeviceStatus,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -93,12 +93,13 @@ pub enum DeviceType {
 }
   
 impl SmartDevice {
-    pub fn new(name: &str, addr: Option<SocketAddr>, supported_features: Vec<SupportedFeature>, device_type: DeviceType) -> Self {
+    pub fn new(name: &str, addr: Option<SocketAddr>, supported_features: Vec<SupportedFeature>, device_type: DeviceType, status: DeviceStatus) -> Self {
         Self {
             name: name.into(),
             addr,
             supported_features,
             device_type,
+            status,
         }
     }
 }

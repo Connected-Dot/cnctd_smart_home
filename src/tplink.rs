@@ -6,7 +6,7 @@ use tplinker::{
     capabilities::{DeviceActions, Switch},	
 };
 
-use crate::{DeviceType, Model, SmartDevice, SupportedFeature};
+use crate::{DeviceStatus, DeviceType, Model, SmartDevice, SupportedFeature};
 
 pub struct TPLink;
 
@@ -28,6 +28,13 @@ impl TPLink {
 				Ok(device_type) => {
 					let smart_device = SmartDevice::new(&sysinfo.alias, Some(addr), features, device_type);
 					if !smart_devices.iter().any(|d| d.addr == Some(addr)) {
+						let status = DeviceStatus {
+							on_off: sysinfo.relay_state,
+							hue: todo!(),
+							saturation: todo!(),
+							color_temp: todo!(),
+							brightness: todo!(),
+						};
 						smart_devices.push(smart_device);
 					}
 				}
